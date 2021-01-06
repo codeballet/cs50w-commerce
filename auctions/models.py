@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
+# Base classes
 class Listing(models.Model):
     title = models.CharField(max_length=250)
     description = models.CharField(max_length=500)

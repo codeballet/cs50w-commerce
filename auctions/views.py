@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import ListingForm
-from .models import Listing, User
+from .models import Image, Listing, User
 
 
 CATEGORIES = ["other", "fashion", "toys", "electronics", "home"]
@@ -29,8 +29,8 @@ def create(request):
                 start_bid = form.cleaned_data['start_bid']
             )
             l.save()
-            l.image(image_url = form.cleaned_data['image_url'])
-            l.save()
+            i = Image(listing = l, image_url = form.cleaned_data['image_url'])
+            i.save()
 
             return HttpResponseRedirect(reverse("index"))
 
