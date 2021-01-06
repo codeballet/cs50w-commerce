@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from django.utils import timezone
 
 
 # Base classes
@@ -7,6 +8,7 @@ class Listing(models.Model):
     title = models.CharField(max_length=250)
     description = models.CharField(max_length=500)
     start_bid = models.DecimalField(max_digits=8, decimal_places=2)
+    timestamp = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
         return f"{self.id}: {self.title} ({self.start_bid})"
@@ -14,6 +16,9 @@ class Listing(models.Model):
 
 class User(AbstractUser):
     pass
+
+    def __str__(self):
+        return f"{self.username}: {self.first_name} {self.last_name}"
 
 
 # OneToOne associations
