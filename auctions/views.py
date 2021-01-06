@@ -29,6 +29,8 @@ def create(request):
                 start_bid = form.cleaned_data['start_bid']
             )
             l.save()
+            l.image(image_url = form.cleaned_data['image_url'])
+            l.save()
 
             return HttpResponseRedirect(reverse("index"))
 

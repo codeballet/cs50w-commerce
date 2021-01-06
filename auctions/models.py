@@ -14,13 +14,10 @@ class Listing(models.Model):
 class User(AbstractUser):
     pass
 
-    def __str__(self):
-        return f"{self.first_name} {self.last_name}"
-
 
 # OneToOne associations
 class Image(models.Model):
-    listing = models.ForeignKey(Listing, on_delete=models.CASCADE)
+    listing = models.OneToOneField(Listing, on_delete=models.CASCADE)
     image_url = models.URLField()
 
     def __str__(self):
