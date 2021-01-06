@@ -4,6 +4,27 @@ from django.utils import timezone
 
 
 # Base classes
+class Category(models.Model):
+    ELECTRONICS = 'electronics'
+    FASHION = 'fashion'
+    HOME = 'home'
+    OTHER = 'other'
+    TOYS = 'toys'
+    CATEGORIES = [
+        (ELECTRONICS, 'Electronics'),
+        (FASHION, 'Fashion'),
+        (HOME, 'Home'),
+        (OTHER, 'Other'),
+        (TOYS, 'Toys')
+    ]
+
+    type = models.CharField(
+        max_length=20,
+        choices=CATEGORIES,
+        default=OTHER
+    )
+
+
 class Listing(models.Model):
     title = models.CharField(max_length=250)
     description = models.CharField(max_length=500)
