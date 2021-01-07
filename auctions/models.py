@@ -10,19 +10,25 @@ class Category(models.Model):
     HOME = 'home'
     OTHER = 'other'
     TOYS = 'toys'
+    UNDEFINED = 'undefined'
     CATEGORIES = [
         (ELECTRONICS, 'Electronics'),
         (FASHION, 'Fashion'),
         (HOME, 'Home'),
         (OTHER, 'Other'),
-        (TOYS, 'Toys')
+        (TOYS, 'Toys'),
+        (UNDEFINED, 'Undefined')
     ]
 
     type = models.CharField(
         max_length=20,
         choices=CATEGORIES,
-        default=OTHER
+        default=UNDEFINED,
+        blank=False
     )
+
+    def __str__(self):
+        return f"{self.type}"
 
 
 class Listing(models.Model):

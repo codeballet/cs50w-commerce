@@ -5,10 +5,10 @@ from django.shortcuts import render
 from django.urls import reverse
 
 from .forms import ListingForm
-from .models import Image, Listing, User
+from .models import Category, Image, Listing, User
 
 
-CATEGORIES = ["other", "fashion", "toys", "electronics", "home"]
+# CATEGORIES = ["other", "fashion", "toys", "electronics", "home"]
 
 
 def index(request):
@@ -19,6 +19,8 @@ def index(request):
 
 
 def create(request):
+    CATEGORIES = Category.objects.all()
+    print(f"CATEGORIES: {CATEGORIES}")
     if request.method == "POST":
         form = ListingForm(request.POST)
 

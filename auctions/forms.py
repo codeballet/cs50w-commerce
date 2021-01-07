@@ -1,16 +1,20 @@
 from django import forms
 
+from .models import Category
 
-CATEGORIES = [
-    ("other", "other"), 
-    ("fashion", "fashion"), 
-    ("toys", "toys"), 
-    ("electronics", "electronics"), 
-    ("home", "home")
-]
+
+# CATEGORIES = [
+#     ("other", "other"), 
+#     ("fashion", "fashion"), 
+#     ("toys", "toys"), 
+#     ("electronics", "electronics"), 
+#     ("home", "home")
+# ]
 
 
 class ListingForm(forms.Form):
+    CATEGORIES = Category.objects.all()
+
     title = forms.CharField(label='Title', max_length=250, required=True)
     description = forms.CharField(label='Description', max_length=500, widget=forms.Textarea, required=True)
     start_bid = forms.DecimalField(max_digits=8, decimal_places=2, required=True)
