@@ -2,19 +2,11 @@ from django import forms
 
 from .models import Category
 
-
-# CATEGORIES = [
-#     ("other", "other"), 
-#     ("fashion", "fashion"), 
-#     ("toys", "toys"), 
-#     ("electronics", "electronics"), 
-#     ("home", "home")
-# ]
-
+categories = []
+for category in Category.objects.all():
+    categories.append((str(category), str(category).capitalize()))
 
 class ListingForm(forms.Form):
-    CATEGORIES = Category.objects.all()
-
     title = forms.CharField(label='Title', max_length=250, required=True)
     description = forms.CharField(label='Description', max_length=500, widget=forms.Textarea, required=True)
     start_bid = forms.DecimalField(max_digits=8, decimal_places=2, required=True)
@@ -22,6 +14,6 @@ class ListingForm(forms.Form):
     categories = forms.MultipleChoiceField(
         label="Categories",
         widget=forms.CheckboxSelectMultiple, 
-        choices=CATEGORIES,
+        choices=categories,
         required=False
     )

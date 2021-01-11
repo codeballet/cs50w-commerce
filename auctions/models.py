@@ -3,29 +3,8 @@ from django.db import models
 from django.utils import timezone
 
 
-# Base classes
 class Category(models.Model):
-    ELECTRONICS = 'electronics'
-    FASHION = 'fashion'
-    HOME = 'home'
-    OTHER = 'other'
-    TOYS = 'toys'
-    UNDEFINED = 'undefined'
-    CATEGORIES = [
-        (ELECTRONICS, 'Electronics'),
-        (FASHION, 'Fashion'),
-        (HOME, 'Home'),
-        (OTHER, 'Other'),
-        (TOYS, 'Toys'),
-        (UNDEFINED, 'Undefined')
-    ]
-
-    type = models.CharField(
-        max_length=20,
-        choices=CATEGORIES,
-        default=UNDEFINED,
-        blank=False
-    )
+    type = models.CharField(max_length=20)
 
     def __str__(self):
         return f"{self.type}"
@@ -36,6 +15,10 @@ class Listing(models.Model):
     description = models.CharField(max_length=500)
     start_bid = models.DecimalField(max_digits=8, decimal_places=2)
     timestamp = models.DateTimeField(default=timezone.now)
+    categories = models.ManyToManyField(
+        Category,
+        related_name="listings"
+    )
 
     def __str__(self):
         return f"{self.id}: {self.title} ({self.start_bid})"
@@ -50,7 +33,10 @@ class User(AbstractUser):
 
 # OneToOne associations
 class Image(models.Model):
-    listing = models.OneToOneField(Listing, on_delete=models.CASCADE)
+    listing = models.OneToOneField(
+        Listing, 
+        on_delete=models.CASCADE
+    )
     image_url = models.URLField()
 
     def __str__(self):

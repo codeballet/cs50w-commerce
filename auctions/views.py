@@ -8,19 +8,17 @@ from .forms import ListingForm
 from .models import Category, Image, Listing, User
 
 
-# CATEGORIES = ["other", "fashion", "toys", "electronics", "home"]
-
-
 def index(request):
     all_listings = Listing.objects.all()
+    for listing in all_listings:
+        for category in listing.categories.all():
+            print(f"Category: {category}")
     return render(request, "auctions/index.html", {
         "all_listings": all_listings
     })
 
 
 def create(request):
-    CATEGORIES = Category.objects.all()
-    print(f"CATEGORIES: {CATEGORIES}")
     if request.method == "POST":
         form = ListingForm(request.POST)
 
@@ -28,9 +26,15 @@ def create(request):
             l = Listing(
                 title = form.cleaned_data['title'],
                 description = form.cleaned_data['description'],
-                start_bid = form.cleaned_data['start_bid']
+                start_bid = form.cleaned_data['start_bid'],
             )
             l.save()
+
+            for category in form.cleaned_data["categories"]:
+                print(f"Category: {category}")
+                c = Category.objects.get(type=category)
+                l.categories.add(c)
+
             i = Image(listing = l, image_url = form.cleaned_data['image_url'])
             i.save()
 
@@ -39,7 +43,6 @@ def create(request):
     form = ListingForm()
     return render(request, "auctions/create.html", {
         "form": form,
-        "categories": CATEGORIES
     })
 
 
