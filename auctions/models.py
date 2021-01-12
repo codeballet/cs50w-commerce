@@ -31,7 +31,21 @@ class User(AbstractUser):
         return f"{self.username}: {self.first_name} {self.last_name}"
 
 
-# OneToOne associations
+# Association tables
+class Bid(models.Model):
+    current_bid = models.DecimalField(
+        max_digits=8, 
+        decimal_places=2, 
+        default=None
+    )
+    timestamp = models.DateTimeField(default=timezone.now)
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE,
+        default=None
+    )
+
+
 class Image(models.Model):
     listing = models.OneToOneField(
         Listing, 

@@ -3,18 +3,22 @@ from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
+from django.db.models import Max
 
-from .forms import ListingForm
-from .models import Category, Image, Listing, User
+from .forms import BidForm, ListingForm
+from .models import Bid, Category, Image, Listing, User
 
 
 def index(request):
     all_listings = Listing.objects.all()
-    for listing in all_listings:
-        for category in listing.categories.all():
-            print(f"Category: {category}")
     return render(request, "auctions/index.html", {
         "all_listings": all_listings
+    })
+
+
+def categories(request):
+    return render(request, "auctions/categories.html", {
+        "categories": Category.objects.order_by('type')
     })
 
 
@@ -43,6 +47,53 @@ def create(request):
     form = ListingForm()
     return render(request, "auctions/create.html", {
         "form": form,
+    })
+
+
+def listing(request, listing_id):
+    message = ''
+
+    if request.method == "POST":
+        bid_form = BidForm(request.POST)
+
+        if bid_form.is_valid():
+            l = Listing.objects.get(pk=listing_id)
+            bid = bid_form.cleaned_data['current_bid']
+
+            # Check if bid is smaller or equal to starting bid
+            # or current bid
+            start = l.start_bid
+            current = l.bid_set.aggregate(Max('current_bid'))
+
+            if bid <= start or bid <= current['current_bid__max']:
+                return render(request, "auctions/listing.html", {
+                    "bid_form": bid_form,
+                    "listing": l,
+                    "error": "Your must bid higher."
+                })
+
+            b = Bid(
+                current_bid = bid_form.cleaned_data['current_bid']
+            )
+            b.listing = l
+            b.save()
+
+            message = "Your bid was successful."
+
+    bid_form = BidForm()
+    l = Listing.objects.filter(pk = listing_id).first()
+
+    # Check if there is a current_bid
+    if l.bid_set:
+        current = l.bid_set.aggregate(Max('current_bid'))
+        current_price = current['current_bid__max']
+    else:
+        current_price = l.start_bid
+    return render(request, "auctions/listing.html", {
+        "bid_form": bid_form,
+        "listing": l,
+        "current_price": current_price,
+        "message": message
     })
 
 

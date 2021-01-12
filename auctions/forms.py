@@ -2,6 +2,10 @@ from django import forms
 
 from .models import Category
 
+
+class BidForm(forms.Form):
+    current_bid = forms.DecimalField(max_digits=8, decimal_places=2)
+
 categories = []
 for category in Category.objects.all():
     categories.append((str(category), str(category).capitalize()))

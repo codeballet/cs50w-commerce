@@ -4,19 +4,31 @@
     <h2>Active Listings</h2>
 
     {% for listing in all_listings %}
+
         <div class="container-fluid">
-            <h3>{{ listing.title }}</h3>
-            <p>Starting Bid: {{ listing.start_bid }}</p>
-            <p>Description: {{ listing.description }}</p>
-            {% if listing.image.image_url %}
-                <p>Image URL: {{ listing.image.image_url }}</p>
-            {% endif %}
-            {% if listing.categories.first %}
-            <p>Categories:</p>
-                {% for category in listing.categories.all %}
-                    <p>{{ category }}</p>
-                {% endfor %}
-            {% endif %}
+
+            <div class="border rounded mt-3 p-2">
+
+                <h3><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></h3>
+
+                <p>Starting Bid: {{ listing.start_bid }}</p>
+
+                <p>Description: {{ listing.description }}</p>
+
+                {% if listing.image.image_url %}
+                    <p>Image URL: {{ listing.image.image_url }}</p>
+                {% endif %}
+
+                {% if listing.categories.first %}
+                    <p>Categories:</p>               
+                    {% for category in listing.categories.all %}
+                        <p>{{ category }}</p>
+                    {% endfor %}
+                {% endif %}
+
+            </div>
+
         </div>
+
     {% endfor %}
 {% endblock %}
