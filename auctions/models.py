@@ -25,7 +25,10 @@ class Listing(models.Model):
 
 
 class User(AbstractUser):
-    pass
+    listings = models.ManyToManyField(
+        Listing,
+        related_name="users"
+    )
 
     def __str__(self):
         return f"{self.username}: {self.first_name} {self.last_name}"
