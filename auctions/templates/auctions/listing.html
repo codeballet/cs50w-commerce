@@ -52,6 +52,11 @@
                 {{ bid_form }}
                 <input type="submit" value="Place bid">
             </form>
+
+            <form class="mt-3" action="">
+                {% csrf_token %}
+                <input type="submit" name="close" value="Close Auction">
+            </form>
         </div>
     </div>
 </div>

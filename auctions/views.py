@@ -40,6 +40,7 @@ def create(request):
                 title = form.cleaned_data['title'],
                 description = form.cleaned_data['description'],
                 start_bid = form.cleaned_data['start_bid'],
+                user_id = request.user
             )
             l.save()
 
@@ -56,20 +57,23 @@ def create(request):
             return HttpResponseRedirect(reverse("index"))
 
     form = ListingForm()
+    categories = Category.objects.all()
     return render(request, "auctions/create.html", {
         "form": form,
+        "categories": categories
     })
 
 
 def listing(request, listing_id):
     message = ''
     watched = Watchlist.objects.filter(user_id=request.user, listing_id=listing_id).first()
-
+    u = request.user
+    l = Listing.objects.filter(pk=listing_id).first()
+    
     if request.method == "POST":
         bid_form = BidForm(request.POST)
 
         if bid_form.is_valid():
-            l = Listing.objects.get(pk=listing_id)
             bid = bid_form.cleaned_data['current_bid']
 
             # Check if bid is smaller or equal to starting bid
@@ -101,7 +105,6 @@ def listing(request, listing_id):
             message = "Your bid was successful."
 
     bid_form = BidForm()
-    l = Listing.objects.filter(pk = listing_id).first()
 
     # Check if there is a current_bid
     if l.bid_set:

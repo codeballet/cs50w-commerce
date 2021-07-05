@@ -10,6 +10,12 @@ class Category(models.Model):
         return f"{self.type}"
 
 
+class User(AbstractUser):
+
+    def __str__(self):
+        return f"{self.username}: {self.first_name} {self.last_name}"
+
+
 class Listing(models.Model):
     title = models.CharField(max_length=250)
     description = models.CharField(max_length=500)
@@ -19,19 +25,14 @@ class Listing(models.Model):
         Category,
         related_name="listings"
     )
-
-    def __str__(self):
-        return f"{self.id}: {self.title} ({self.start_bid})"
-
-
-class User(AbstractUser):
-    listings = models.ManyToManyField(
-        Listing,
-        related_name="users"
+    user_id = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        default=None
     )
 
     def __str__(self):
-        return f"{self.username}: {self.first_name} {self.last_name}"
+        return f"{self.id}: {self.title} ({self.start_bid})"
 
 
 class Bid(models.Model):
