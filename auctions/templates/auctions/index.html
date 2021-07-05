@@ -1,34 +1,41 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
-    <h2>Active Listings</h2>
+<h2>Active Listings</h2>
 
-    {% for listing in all_listings %}
+{% for listing in all_listings %}
 
-        <div class="container-fluid">
+<div class="container-fluid">
 
-            <div class="border rounded mt-3 p-2">
+    <div class="border rounded mt-3 p-2">
+        <div class="row">
+            {% if listing.image.image_url %}
+            <div class="col-sm">
+                <img src="{{ listing.image.image_url }}" class="img-thumbnail" alt="listing">
+            </div>
+            {% endif %}
 
-                <h3><a href="{% url 'listing' listing.id %}">{{ listing.title }}</a></h3>
+            <div class="col-sm">
+                <h3><a href="{% url 'listing' listing.id %}">{{ listing.title.capitalize }}</a></h3>
 
-                <p>Starting Bid: {{ listing.start_bid }}</p>
+                <h5>Starting Bid: {{ listing.start_bid }}</h5>
 
-                <p>Description: {{ listing.description }}</p>
-
-                {% if listing.image.image_url %}
-                    <p>Image URL: {{ listing.image.image_url }}</p>
-                {% endif %}
+                <h5>Description:</h5>
+                <p>{{ listing.description }}</p>
 
                 {% if listing.categories.first %}
-                    <p>Categories:</p>               
+                <h5>Categories:</h5>
+                <ul>
                     {% for category in listing.categories.all %}
-                        <p>{{ category }}</p>
+                    <li>{{ category }}</li>
                     {% endfor %}
+                </ul>
                 {% endif %}
-
             </div>
-
         </div>
+    </div>
 
-    {% endfor %}
+</div>
+
+{% endfor %}
 {% endblock %}

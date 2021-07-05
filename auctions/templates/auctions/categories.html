@@ -2,12 +2,12 @@
 
 {% block body %}
 
-    <h2>Categories</h2>
+<h2>Categories</h2>
 
-    <ul>
-        {% for category in categories %}
-            <li><a href="{% url 'categories' %}">{{ category|capfirst }}</a></li>
-        {% endfor %}
-    </ul>
+<ul>
+    {% for category in categories %}
+    <li><a href="{% url 'category' category.id %}">{{ category|capfirst }}</a></li>
+    {% endfor %}
+</ul>
 
 {% endblock %}

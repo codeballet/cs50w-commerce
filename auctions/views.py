@@ -1,3 +1,4 @@
+from typing import List
 from django.contrib.auth import authenticate, login, logout
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
@@ -6,7 +7,7 @@ from django.urls import reverse
 from django.db.models import Max
 
 from .forms import BidForm, ListingForm
-from .models import Bid, Category, Image, Listing, User
+from .models import Bid, Category, Image, Listing, User, Watchlist
 
 
 def index(request):
@@ -19,6 +20,14 @@ def index(request):
 def categories(request):
     return render(request, "auctions/categories.html", {
         "categories": Category.objects.order_by('type')
+    })
+
+def category(request, category_id):
+    c = Category.objects.get(pk=category_id)
+    c_listings = Listing.objects.filter(categories=c.id)
+    return render(request, "auctions/category.html", {
+        "c_listings": c_listings,
+        "category": c.type
     })
 
 
@@ -39,8 +48,10 @@ def create(request):
                 c = Category.objects.get(type=category)
                 l.categories.add(c)
 
-            i = Image(listing = l, image_url = form.cleaned_data['image_url'])
-            i.save()
+            image = form.cleaned_data['image_url']
+            if image:
+                i = Image(listing = l, image_url = image)
+                i.save()
 
             return HttpResponseRedirect(reverse("index"))
 
@@ -52,6 +63,7 @@ def create(request):
 
 def listing(request, listing_id):
     message = ''
+    watched = Watchlist.objects.filter(user_id=request.user, listing_id=listing_id).first()
 
     if request.method == "POST":
         bid_form = BidForm(request.POST)
@@ -63,19 +75,27 @@ def listing(request, listing_id):
             # Check if bid is smaller or equal to starting bid
             # or current bid
             start = l.start_bid
-            current = l.bid_set.aggregate(Max('current_bid'))
+            current_list = l.bid_set.aggregate(Max('current_bid'))
+            current = current_list['current_bid__max']
 
-            if bid <= start or bid <= current['current_bid__max']:
+            if not current:
+                current = 0
+
+            if bid <= start or bid <= current:
+                if current == 0:
+                    current = None
                 return render(request, "auctions/listing.html", {
                     "bid_form": bid_form,
                     "listing": l,
+                    "current_price": current,
                     "error": "Your must bid higher."
                 })
 
             b = Bid(
                 current_bid = bid_form.cleaned_data['current_bid']
             )
-            b.listing = l
+            b.listing_id = l
+            b.user_id = request.user
             b.save()
 
             message = "Your bid was successful."
@@ -89,11 +109,13 @@ def listing(request, listing_id):
         current_price = current['current_bid__max']
     else:
         current_price = l.start_bid
+
     return render(request, "auctions/listing.html", {
         "bid_form": bid_form,
         "listing": l,
         "current_price": current_price,
-        "message": message
+        "message": message,
+        "watched": watched
     })
 
 
@@ -147,3 +169,15 @@ def register(request):
         return HttpResponseRedirect(reverse("index"))
     else:
         return render(request, "auctions/register.html")
+
+
+def watchlist(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.filter(pk = listing_id).first()
+        if request.POST["watch"] == "Add to Watchlist":
+            watch = Watchlist(user_id=request.user, listing_id=listing)
+            watch.save()
+        if request.POST["watch"] == "Remove from Watchlist":
+            watch = Watchlist.objects.filter(user_id=request.user, listing_id=listing).first()
+            watch.delete()
+        return HttpResponseRedirect(reverse("listing", args=(listing.id,)))

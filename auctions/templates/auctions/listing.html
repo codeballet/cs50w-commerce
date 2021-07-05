@@ -2,26 +2,58 @@
 
 {% block body %}
 
-    <h2>{{ listing.title|capfirst }}</h2>
-    <p>Start bid: {{ listing.start_bid }}</p>
-    <p>Current price: {{ current_price }}</p>
 
-    {% if error %}
-        <div class="alert alert-warning" role="alert">
-            {{ error }}
+
+<div class="container-fluid">
+
+    <div class="row">
+        <h2>{{ listing.title|capfirst }}</h2>
+    </div>
+
+    <div class="row mb-3">
+
+        <form action="{% url 'watchlist' listing.id %}" method="POST">
+            {% csrf_token %}
+            {% if not watched %}
+            <input type="submit" name="watch" value="Add to Watchlist">
+            {% else %}
+            <input type="submit" name="watch" value="Remove from Watchlist">
+            {% endif %}
+        </form>
+    </div>
+
+    <div class="row">
+        {% if listing.image.image_url %}
+        <div class="col-sm">
+            <div class="col-sm">
+                <img src="{{ listing.image.image_url }}" class="img-thumbnail" alt="listing">
+            </div>
         </div>
-    {% endif %}
+        {% endif %}
 
-    {% if message %}
-        <div class="alert alert-success" role="alert">
-            {{ message }}
+        <div class="col-sm">
+            <p>Start bid: {{ listing.start_bid }}</p>
+            <p>Current bid: {{ current_price }}</p>
+
+            {% if error %}
+            <div class="alert alert-warning" role="alert">
+                {{ error }}
+            </div>
+            {% endif %}
+
+            {% if message %}
+            <div class="alert alert-success" role="alert">
+                {{ message }}
+            </div>
+            {% endif %}
+
+            <form action="{% url 'listing' listing.id %}" method="POST">
+                {% csrf_token %}
+                {{ bid_form }}
+                <input type="submit" value="Place bid">
+            </form>
         </div>
-    {% endif %}
-
-    <form action="{% url 'listing' listing.id %}" method="POST">
-        {% csrf_token %}
-        {{ bid_form }}
-        <input type="submit">
-    </form>
+    </div>
+</div>
 
 {% endblock %}

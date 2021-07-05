@@ -34,7 +34,6 @@ class User(AbstractUser):
         return f"{self.username}: {self.first_name} {self.last_name}"
 
 
-# Association tables
 class Bid(models.Model):
     current_bid = models.DecimalField(
         max_digits=8, 
@@ -42,11 +41,19 @@ class Bid(models.Model):
         default=None
     )
     timestamp = models.DateTimeField(default=timezone.now)
-    listing = models.ForeignKey(
+    listing_id = models.ForeignKey(
         Listing,
         on_delete=models.CASCADE,
         default=None
     )
+    user_id = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        default=None
+    )
+
+    def __str__(self):
+        return f"Listing: {self.listing_id} Current Bid: {self.current_bid} User: {self.user_id}"
 
 
 class Image(models.Model):
@@ -58,3 +65,19 @@ class Image(models.Model):
 
     def __str__(self):
         return f"{self.listing}: {self.image_url}"
+
+
+class Watchlist(models.Model):
+    user_id = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        default=None
+    )
+    listing_id = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE,
+        default=None
+    )
+
+    def __str__(self):
+        return f"User: {self.user_id} Listing: {self.listing_id}"

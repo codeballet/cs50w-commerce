@@ -1,0 +1,17 @@
+{% extends "auctions/layout.html" %}
+
+{% block body %}
+
+<h2>{{ category.capitalize }} listings</h2>
+
+<ul>
+    {% for listing in c_listings %}
+    <a href="{% url 'listing' listing.id %}">
+        <li>{{ listing.title.capitalize }} (Start bid: {{ listing.start_bid }})</li>
+        {% empty %}
+    </a>
+    <li>No listings</li>
+    {% endfor %}
+</ul>
+
+{% endblock %}
