@@ -116,6 +116,8 @@ def listing(request, listing_id):
     # Check if auction is closed and find winner
     if not l.active:
         last_bid = Bid.objects.filter(listing_id=listing_id).order_by('-timestamp').first()
+    else:
+        last_bid = None
 
     return render(request, "auctions/listing.html", {
         "bid_form": bid_form,

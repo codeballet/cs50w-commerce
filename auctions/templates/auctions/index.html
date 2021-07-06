@@ -1,12 +1,13 @@
 {% extends "auctions/layout.html" %}
 
 {% block body %}
+
 <h2>Active Listings</h2>
 
 {% for listing in all_listings %}
+{% if listing.active %}
 
 <div class="container-fluid">
-
     <div class="border rounded mt-3 p-2">
         <div class="row">
             {% if listing.image.image_url %}
@@ -34,8 +35,9 @@
             </div>
         </div>
     </div>
-
 </div>
 
+{% endif %}
 {% endfor %}
+
 {% endblock %}
