@@ -2,8 +2,6 @@
 
 {% block body %}
 
-
-
 <div class="container-fluid">
 
     <div class="row">
@@ -31,6 +29,8 @@
         </div>
         {% endif %}
 
+        {% if listing.active %}
+
         <div class="col-sm">
             <p>Start bid: {{ listing.start_bid }}</p>
             <p>Current bid: {{ current_price }}</p>
@@ -53,11 +53,31 @@
                 <input type="submit" value="Place bid">
             </form>
 
-            <form class="mt-3" action="">
+            {% if request.user == listing.user_id %}
+            <form class="mt-3" action="{% url 'close' listing.id %}" method="POST">
                 {% csrf_token %}
                 <input type="submit" name="close" value="Close Auction">
             </form>
+            {% endif %}
         </div>
+
+        {% else %}
+
+        <div class="col-sm">
+            {% if last_bid.user_id == request.user %}
+            <h1>You have won this auction!</h1>
+            <br>
+            <p>Your winning bid was: {{ last_bid.current_bid }}</p>
+
+            {% else %}
+
+            <h1>This auction is closed</h1>
+            <p>The winning bid was: {{ last_bid.current_bid }}</p>
+            {% endif %}
+        </div>
+
+        {% endif %}
+
     </div>
 </div>
 

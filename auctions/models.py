@@ -30,6 +30,9 @@ class Listing(models.Model):
         on_delete=models.CASCADE,
         default=None
     )
+    active = models.BooleanField(
+        default=True
+    )
 
     def __str__(self):
         return f"{self.id}: {self.title} ({self.start_bid})"

@@ -113,12 +113,17 @@ def listing(request, listing_id):
     else:
         current_price = l.start_bid
 
+    # Check if auction is closed and find winner
+    if not l.active:
+        last_bid = Bid.objects.filter(listing_id=listing_id).order_by('-timestamp').first()
+
     return render(request, "auctions/listing.html", {
         "bid_form": bid_form,
         "listing": l,
         "current_price": current_price,
         "message": message,
-        "watched": watched
+        "watched": watched,
+        "last_bid": last_bid
     })
 
 
@@ -183,4 +188,11 @@ def watchlist(request, listing_id):
         if request.POST["watch"] == "Remove from Watchlist":
             watch = Watchlist.objects.filter(user_id=request.user, listing_id=listing).first()
             watch.delete()
+        return HttpResponseRedirect(reverse("listing", args=(listing.id,)))
+
+def close(request, listing_id):
+    if request.method == "POST":
+        listing = Listing.objects.filter(pk = listing_id).first()
+        listing.active = False
+        listing.save()
         return HttpResponseRedirect(reverse("listing", args=(listing.id,)))
