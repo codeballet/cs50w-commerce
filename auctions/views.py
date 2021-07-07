@@ -181,7 +181,7 @@ def register(request):
         return render(request, "auctions/register.html")
 
 
-def watchlist(request, listing_id):
+def watch(request, listing_id):
     if request.method == "POST":
         listing = Listing.objects.filter(pk = listing_id).first()
         if request.POST["watch"] == "Add to Watchlist":
@@ -191,6 +191,19 @@ def watchlist(request, listing_id):
             watch = Watchlist.objects.filter(user_id=request.user, listing_id=listing).first()
             watch.delete()
         return HttpResponseRedirect(reverse("listing", args=(listing.id,)))
+
+
+def watchlist(request):
+    items = Watchlist.objects.filter(user_id=request.user)
+    watched = []
+    for item in items:
+        listing = Listing.objects.filter(pk=item.listing_id)
+        watched.append(listing)
+
+    return render(request, "auctions/watchlist.html", {
+        "watched": watched
+    })
+
 
 def close(request, listing_id):
     if request.method == "POST":

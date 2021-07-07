@@ -10,7 +10,7 @@
 
     <div class="row mb-3">
 
-        <form action="{% url 'watchlist' listing.id %}" method="POST">
+        <form action="{% url 'watch' listing.id %}" method="POST">
             {% csrf_token %}
             {% if not watched %}
             <input type="submit" name="watch" value="Add to Watchlist">
