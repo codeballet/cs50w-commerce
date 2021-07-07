@@ -1,5 +1,6 @@
 from typing import List
 from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import AnonymousUser
 from django.db import IntegrityError
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
@@ -66,8 +67,10 @@ def create(request):
 
 def listing(request, listing_id):
     message = ''
-    watched = Watchlist.objects.filter(user=request.user, listing=listing_id).first()
-    u = request.user
+    if not AnonymousUser:
+        watched = Watchlist.objects.filter(user=request.user, listing=listing_id).first()
+    else:
+        watched = "anonymous"
     l = Listing.objects.filter(pk=listing_id).first()
     
     if request.method == "POST":
