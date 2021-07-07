@@ -2,8 +2,40 @@
 
 {% block body %}
 
-{% for item in watched %}
-item
+<h2>Your Watchlist</h2>
+
+{% for listing in listings %}
+
+<div class="container-fluid">
+    <div class="border rounded mt-3 p-2">
+        <div class="row">
+            {% if listing.image.image_url %}
+            <div class="col-sm">
+                <img src="{{ listing.image.image_url }}" class="img-thumbnail" alt="listing">
+            </div>
+            {% endif %}
+
+            <div class="col-sm">
+                <h3><a href="{% url 'listing' listing.id %}">{{ listing.title.capitalize }}</a></h3>
+
+                <h5>Starting Bid: {{ listing.start_bid }}</h5>
+
+                <h5>Description:</h5>
+                <p>{{ listing.description }}</p>
+
+                {% if listing.categories.first %}
+                <h5>Categories:</h5>
+                <ul>
+                    {% for category in listing.categories.all %}
+                    <li>{{ category }}</li>
+                    {% endfor %}
+                </ul>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
 {% endfor %}
 
 {% endblock %}

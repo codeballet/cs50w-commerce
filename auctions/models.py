@@ -72,12 +72,12 @@ class Image(models.Model):
 
 
 class Watchlist(models.Model):
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         default=None
     )
-    listing_id = models.ForeignKey(
+    listing = models.ForeignKey(
         Listing,
         on_delete=models.CASCADE,
         default=None
