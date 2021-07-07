@@ -57,7 +57,7 @@ class Bid(models.Model):
     )
 
     def __str__(self):
-        return f"Listing: {self.listing_id} Current Bid: {self.current_bid} User: {self.user_id}"
+        return f"Listing: {self.listing} Current Bid: {self.bid} User: {self.user}"
 
 
 class Image(models.Model):
@@ -84,4 +84,4 @@ class Watchlist(models.Model):
     )
 
     def __str__(self):
-        return f"User: {self.user_id} Listing: {self.listing_id}"
+        return f"User: {self.user} Listing: {self.listing}"

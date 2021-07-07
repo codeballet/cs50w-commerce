@@ -4,35 +4,25 @@
 
 <h2>Active Listings</h2>
 
-{% for listing in all_listings %}
-{% if listing.active %}
+{% for item in items %}
+{% if item.active %}
 
 <div class="container-fluid">
     <div class="border rounded mt-3 p-2">
         <div class="row">
-            {% if listing.image.image_url %}
+
+            {% if item.image %}
             <div class="col-sm">
-                <img src="{{ listing.image.image_url }}" class="img-thumbnail" alt="listing">
+                <img src="{{ item.image }}" class="img-thumbnail" alt="listing">
             </div>
             {% endif %}
 
             <div class="col-sm">
-                <h3><a href="{% url 'listing' listing.id %}">{{ listing.title.capitalize }}</a></h3>
-
-                <h5>Starting Bid: {{ listing.start_bid }}</h5>
-
-                <h5>Description:</h5>
-                <p>{{ listing.description }}</p>
-
-                {% if listing.categories.first %}
-                <h5>Categories:</h5>
-                <ul>
-                    {% for category in listing.categories.all %}
-                    <li>{{ category }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
+                <h3><a href="{% url 'listing' item.id %}">{{ item.title.capitalize }}</a></h3>
+                <h5>Price: ${{ item.price }}</h5>
+                <p>Created {{ item.time }}</p>
             </div>
+
         </div>
     </div>
 </div>

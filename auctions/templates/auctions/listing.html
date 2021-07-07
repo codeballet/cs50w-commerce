@@ -34,8 +34,8 @@
         {% if listing.active %}
 
         <div class="col-sm">
-            <p>Start bid: {{ listing.start_bid }}</p>
-            <p>Current bid: {{ current_price }}</p>
+            <p>Start bid: ${{ listing.start_bid }}</p>
+            <p>Current bid: ${{ current_price }}</p>
 
             {% if error %}
             <div class="alert alert-warning" role="alert">
@@ -49,6 +49,8 @@
             </div>
             {% endif %}
 
+            {% if user.is_authenticated %}
+
             <form action="{% url 'listing' listing.id %}" method="POST">
                 {% csrf_token %}
                 {{ bid_form }}
@@ -60,6 +62,8 @@
                 {% csrf_token %}
                 <input type="submit" name="close" value="Close Auction">
             </form>
+            {% endif %}
+
             {% endif %}
         </div>
 

@@ -13,12 +13,34 @@ from .models import Bid, Category, Image, Listing, User, Watchlist
 
 def index(request):
     all_listings = Listing.objects.all()
+    items = []
+
+    for listing in all_listings:
+        price = Bid.objects.filter(listing=listing).order_by('-timestamp').first() or listing.start_bid
+        image = Image.objects.filter(listing=listing).first()
+        if image:
+            image = image.image_url
+            
+        print(f"image: {image}")
+        items.append({
+            'title': listing.title,
+            'time': listing.timestamp,
+            'price': price.bid,
+            'active': listing.active,
+            'id': listing.id,
+            'image': image
+        })
+
+    print(f"Items: {items}")
     return render(request, "auctions/index.html", {
-        "all_listings": all_listings
+        "items": items
     })
 
 
 def categories(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
     return render(request, "auctions/categories.html", {
         "categories": Category.objects.order_by('type')
     })
@@ -33,6 +55,9 @@ def category(request, category_id):
 
 
 def create(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
     if request.method == "POST":
         form = ListingForm(request.POST)
 
@@ -153,6 +178,9 @@ def login_view(request):
 
 
 def logout_view(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
     logout(request)
     return HttpResponseRedirect(reverse("index"))
 
@@ -185,6 +213,9 @@ def register(request):
 
 
 def watch(request, listing_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
     if request.method == "POST":
         listing = Listing.objects.filter(pk = listing_id).first()
         if request.POST["watch"] == "Add to Watchlist":
@@ -197,6 +228,9 @@ def watch(request, listing_id):
 
 
 def watchlist(request):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
     listings = Listing.objects.filter(watchlist__user=request.user)
 
     return render(request, "auctions/watchlist.html", {
@@ -205,6 +239,9 @@ def watchlist(request):
 
 
 def close(request, listing_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
     if request.method == "POST":
         listing = Listing.objects.filter(pk = listing_id).first()
         listing.active = False
