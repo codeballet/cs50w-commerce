@@ -39,18 +39,18 @@ class Listing(models.Model):
 
 
 class Bid(models.Model):
-    current_bid = models.DecimalField(
+    bid = models.DecimalField(
         max_digits=8, 
         decimal_places=2, 
         default=None
     )
     timestamp = models.DateTimeField(default=timezone.now)
-    listing_id = models.ForeignKey(
+    listing = models.ForeignKey(
         Listing,
         on_delete=models.CASCADE,
         default=None
     )
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         default=None

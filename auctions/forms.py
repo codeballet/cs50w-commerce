@@ -4,7 +4,7 @@ from .models import Category
 
 
 class BidForm(forms.Form):
-    current_bid = forms.DecimalField(label='New bid', max_digits=8, decimal_places=2)
+    bid = forms.DecimalField(label='New bid', max_digits=8, decimal_places=2)
 
 
 class ListingForm(forms.Form):

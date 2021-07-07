@@ -66,7 +66,7 @@ def create(request):
 
 def listing(request, listing_id):
     message = ''
-    watched = Watchlist.objects.filter(user_id=request.user, listing_id=listing_id).first()
+    watched = Watchlist.objects.filter(user=request.user, listing=listing_id).first()
     u = request.user
     l = Listing.objects.filter(pk=listing_id).first()
     
@@ -74,13 +74,13 @@ def listing(request, listing_id):
         bid_form = BidForm(request.POST)
 
         if bid_form.is_valid():
-            bid = bid_form.cleaned_data['current_bid']
+            bid = bid_form.cleaned_data['bid']
 
             # Check if bid is smaller or equal to starting bid
             # or current bid
             start = l.start_bid
-            current_list = l.bid_set.aggregate(Max('current_bid'))
-            current = current_list['current_bid__max']
+            current_list = l.bid_set.aggregate(Max('bid'))
+            current = current_list['bid__max']
 
             if not current:
                 current = 0
@@ -96,10 +96,10 @@ def listing(request, listing_id):
                 })
 
             b = Bid(
-                current_bid = bid_form.cleaned_data['current_bid']
+                bid = bid_form.cleaned_data['bid']
             )
-            b.listing_id = l
-            b.user_id = request.user
+            b.listing = l
+            b.user = request.user
             b.save()
 
             message = "Your bid was successful."
@@ -108,14 +108,14 @@ def listing(request, listing_id):
 
     # Check if there is a current_bid
     if l.bid_set:
-        current = l.bid_set.aggregate(Max('current_bid'))
-        current_price = current['current_bid__max']
+        current = l.bid_set.aggregate(Max('bid'))
+        current_price = current['bid__max']
     else:
         current_price = l.start_bid
 
     # Check if auction is closed and find winner
     if not l.active:
-        last_bid = Bid.objects.filter(listing_id=listing_id).order_by('-timestamp').first()
+        last_bid = Bid.objects.filter(listing=listing_id).order_by('-timestamp').first()
     else:
         last_bid = None
 
