@@ -25,7 +25,7 @@ class Listing(models.Model):
         Category,
         related_name="listings"
     )
-    user_id = models.ForeignKey(
+    user = models.ForeignKey(
         User,
         on_delete=models.CASCADE,
         default=None
@@ -85,3 +85,15 @@ class Watchlist(models.Model):
 
     def __str__(self):
         return f"User: {self.user} Listing: {self.listing}"
+
+class Comment(models.Model):
+    comment = models.TextField(max_length=1000)
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE
+    )
+    listing = models.ForeignKey(
+        Listing,
+        on_delete=models.CASCADE
+    )
+    timestamp = models.DateTimeField(default=timezone.now)

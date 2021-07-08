@@ -10,7 +10,7 @@
 
     <div class="row mb-3">
 
-        {%if watched != "anonymous" %}
+        {%if user.is_authenticated %}
         <form action="{% url 'watch' listing.id %}" method="POST">
             {% csrf_token %}
             {% if not watched %}
@@ -85,6 +85,58 @@
         {% endif %}
 
     </div>
+
+    <div class="row">
+        <div class="col-sm mt-3">
+            <h3>Details</h3>
+
+            {% if user.is_authenticated %}
+            <p>Listed by: {{ listing.user.username }}</p>
+            {% endif %}
+
+            <h6>Categories:</h6>
+            <ul>
+            {% for category in categories %}
+                <li>{{ category }}</li>
+                {% empty %}
+                <li>No categories assigned</li>
+            {% endfor %}
+            </ul>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-sm mt-3">
+            <h3>Comments</h3>
+        </div>
+    </div>
+
+    {% for comment in comments %}
+    <div class="row border rounded mt-3 p-2">
+        <div class="col-sm">
+            <h6>{{ comment.user.username }} ({{ comment.timestamp }})</h6>
+            <p>{{ comment.comment }}</p>
+        </div>
+    </div>
+    {% empty %}
+    <p>No comments yet</p>
+    {% endfor %}
+
+    {% if user.is_authenticated %}
+
+    <div class="row">
+        <div class="col-sm mt-3">
+            <h5>Make a comment</h5>
+            <form action="{% url 'comment' listing.id %}" method="POST">
+                {% csrf_token %}
+                {{ comment_form }}
+                <br>
+                <input type="submit" value="Post Comment">
+            </form>
+        </div>
+    </div>
+
+    {% endif %}
 </div>
 
 {% endblock %}

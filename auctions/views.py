@@ -7,8 +7,8 @@ from django.shortcuts import render
 from django.urls import reverse
 from django.db.models import Max
 
-from .forms import BidForm, ListingForm
-from .models import Bid, Category, Image, Listing, User, Watchlist
+from .forms import BidForm, ListingForm, CommentForm
+from .models import Bid, Category, Image, Listing, User, Watchlist, Comment
 
 
 def index(request):
@@ -21,7 +21,6 @@ def index(request):
         if image:
             image = image.image_url
             
-        print(f"image: {image}")
         items.append({
             'title': listing.title,
             'time': listing.timestamp,
@@ -31,7 +30,6 @@ def index(request):
             'image': image
         })
 
-    print(f"Items: {items}")
     return render(request, "auctions/index.html", {
         "items": items
     })
@@ -92,10 +90,12 @@ def create(request):
 
 def listing(request, listing_id):
     message = ''
-    if not AnonymousUser:
+
+    if request.user.is_authenticated:
         watched = Watchlist.objects.filter(user=request.user, listing=listing_id).first()
     else:
-        watched = "anonymous"
+        watched = None
+
     l = Listing.objects.filter(pk=listing_id).first()
     
     if request.method == "POST":
@@ -132,7 +132,9 @@ def listing(request, listing_id):
 
             message = "Your bid was successful."
 
+    # Get the forms
     bid_form = BidForm()
+    comment_form = CommentForm()
 
     # Check if there is a current_bid
     if l.bid_set:
@@ -140,6 +142,9 @@ def listing(request, listing_id):
         current_price = current['bid__max']
     else:
         current_price = l.start_bid
+
+    # Get comments for item
+    comments = Comment.objects.filter(listing = l)
 
     # Check if auction is closed and find winner
     if not l.active:
@@ -149,11 +154,14 @@ def listing(request, listing_id):
 
     return render(request, "auctions/listing.html", {
         "bid_form": bid_form,
+        "comment_form": comment_form,
         "listing": l,
         "current_price": current_price,
         "message": message,
         "watched": watched,
-        "last_bid": last_bid
+        "last_bid": last_bid,
+        "comments": comments,
+        "categories": l.categories.all()
     })
 
 
@@ -246,4 +254,24 @@ def close(request, listing_id):
         listing = Listing.objects.filter(pk = listing_id).first()
         listing.active = False
         listing.save()
+        return HttpResponseRedirect(reverse("listing", args=(listing.id,)))
+
+
+def comment(request, listing_id):
+    if not request.user.is_authenticated:
+        return HttpResponseRedirect(reverse("login"))
+
+    if request.method == "POST":
+        print("Inside the comment function")
+        listing = Listing.objects.filter(pk = listing_id).first()
+        comment_form = CommentForm(request.POST)
+        if comment_form.is_valid():
+            print(f"Form checked, about to save to database")
+            new_comment = Comment(
+                comment = comment_form.cleaned_data['comment'],
+                user = request.user,
+                listing = listing
+            )
+            new_comment.save()
+            print(f"Comment Saved to database")
         return HttpResponseRedirect(reverse("listing", args=(listing.id,)))

@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Bid, Category, Image, Listing, User, Watchlist
+from .models import Bid, Category, Image, Listing, User, Watchlist, Comment
 
 
 # Register your models here.
@@ -13,3 +13,4 @@ admin.site.register(Image)
 admin.site.register(Listing)
 admin.site.register(User)
 admin.site.register(Watchlist)
+admin.site.register(Comment)
