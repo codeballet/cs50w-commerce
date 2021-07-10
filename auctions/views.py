@@ -16,7 +16,12 @@ def index(request):
     items = []
 
     for listing in all_listings:
-        price = Bid.objects.filter(listing=listing).order_by('-timestamp').first() or listing.start_bid
+        last_bid = Bid.objects.filter(listing=listing).order_by('-timestamp').first()
+        if last_bid:
+            price = last_bid.bid
+        else:
+            price = listing.start_bid
+
         image = Image.objects.filter(listing=listing).first()
         if image:
             image = image.image_url
@@ -24,10 +29,11 @@ def index(request):
         items.append({
             'title': listing.title,
             'time': listing.timestamp,
-            'price': price.bid,
+            'price': price,
             'active': listing.active,
             'id': listing.id,
-            'image': image
+            'image': image,
+            'description': listing.description
         })
 
     return render(request, "auctions/index.html", {
@@ -45,10 +51,23 @@ def categories(request):
 
 def category(request, category_id):
     c = Category.objects.get(pk=category_id)
-    c_listings = Listing.objects.filter(categories=c.id)
+    c_listings = Listing.objects.filter(
+        categories = c.id, 
+        active = True
+    )
+
+    # get price for listings
+    for listing in c_listings:
+        last_bid = Bid.objects.filter(listing=listing).order_by('-timestamp').first()
+        if last_bid:
+            price = last_bid.bid
+        else:
+            price = listing.start_bid
+
     return render(request, "auctions/category.html", {
         "c_listings": c_listings,
-        "category": c.type
+        "category": c.type,
+        "price": price
     })
 
 
@@ -64,7 +83,7 @@ def create(request):
                 title = form.cleaned_data['title'],
                 description = form.cleaned_data['description'],
                 start_bid = form.cleaned_data['start_bid'],
-                user_id = request.user
+                user_id = request.user.id
             )
             l.save()
 
@@ -98,6 +117,31 @@ def listing(request, listing_id):
 
     l = Listing.objects.filter(pk=listing_id).first()
     
+    # Get the forms
+    bid_form = BidForm()
+    comment_form = CommentForm()
+
+    # Check if there is a current_bid
+    if l.bid_set:
+        current = l.bid_set.aggregate(Max('bid'))
+        current_price = current['bid__max']
+    else:
+        current_price = l.start_bid
+
+    # Get comments for item
+    comments = Comment.objects.filter(listing = l)
+
+    # get last bid and check if it is the current user
+    last_bid = Bid.objects.filter(listing=listing_id).order_by('-timestamp').first()
+    if last_bid:
+        current_user_bid = last_bid.user == request.user
+    else:
+        current_user_bid = False
+
+    # check how many bids has been made
+    bid_count = Bid.objects.filter(listing=listing_id).count()
+
+    # for POST requests
     if request.method == "POST":
         bid_form = BidForm(request.POST)
 
@@ -113,14 +157,22 @@ def listing(request, listing_id):
             if not current:
                 current = 0
 
-            if bid <= start or bid <= current:
+            if bid < start or bid <= current:
                 if current == 0:
                     current = None
                 return render(request, "auctions/listing.html", {
                     "bid_form": bid_form,
+                    "comment_form": comment_form,
                     "listing": l,
-                    "current_price": current,
-                    "error": "Your must bid higher."
+                    "current_price": current_price,
+                    "message": message,
+                    "watched": watched,
+                    "last_bid": last_bid,
+                    "comments": comments,
+                    "categories": l.categories.all(),
+                    "bid_count": bid_count,
+                    "error": "Your must bid higher.",
+                    "current_user_bid": current_user_bid
                 })
 
             b = Bid(
@@ -132,26 +184,6 @@ def listing(request, listing_id):
 
             message = "Your bid was successful."
 
-    # Get the forms
-    bid_form = BidForm()
-    comment_form = CommentForm()
-
-    # Check if there is a current_bid
-    if l.bid_set:
-        current = l.bid_set.aggregate(Max('bid'))
-        current_price = current['bid__max']
-    else:
-        current_price = l.start_bid
-
-    # Get comments for item
-    comments = Comment.objects.filter(listing = l)
-
-    # Check if auction is closed and find winner
-    if not l.active:
-        last_bid = Bid.objects.filter(listing=listing_id).order_by('-timestamp').first()
-    else:
-        last_bid = None
-
     return render(request, "auctions/listing.html", {
         "bid_form": bid_form,
         "comment_form": comment_form,
@@ -161,7 +193,9 @@ def listing(request, listing_id):
         "watched": watched,
         "last_bid": last_bid,
         "comments": comments,
-        "categories": l.categories.all()
+        "categories": l.categories.all(),
+        "bid_count": bid_count,
+        "current_user_bid": current_user_bid
     })
 
 

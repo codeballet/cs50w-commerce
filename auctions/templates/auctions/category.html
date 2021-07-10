@@ -2,16 +2,35 @@
 
 {% block body %}
 
-<h2>{{ category.capitalize }} listings</h2>
+<h2>Category: {{ category.capitalize }}</h2>
 
-<ul>
-    {% for listing in c_listings %}
-    <a href="{% url 'listing' listing.id %}">
-        <li>{{ listing.title.capitalize }} (Start bid: {{ listing.start_bid }})</li>
-        {% empty %}
-    </a>
-    <li>No listings</li>
-    {% endfor %}
-</ul>
+{% for listing in c_listings %}
+<div class="container-fluid">
+    <div class="border rounded mt-3 -2">
+        <div class="row">
+
+            {% if listing.image %}
+            <div class="col-sm">
+                <img src="{{ listing.image.image_url }}" class="img-thumbnail" alt="listing">
+            </div>
+            {% endif %}
+
+            <div class="col-sm">
+                <h3>
+                    <a href="{% url 'listing' listing.id %}">
+                        {{ listing.title.capitalize }}
+                    </a>
+                </h3>
+                <h5>Price: {{ price }}</h5>
+                <p>Created on {{ listing.timestamp }}</p>
+                <h6>Description</h6>
+                <p>{{ listing.description }}</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% empty %}
+<p>No listings</p>
+{% endfor %}
 
 {% endblock %}

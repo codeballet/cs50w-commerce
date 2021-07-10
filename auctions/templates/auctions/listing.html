@@ -35,7 +35,10 @@
 
         <div class="col-sm">
             <p>Start bid: ${{ listing.start_bid }}</p>
-            <p>Current bid: ${{ current_price }}</p>
+            {% if current_price %}
+            <p class="font-weight-bold">Current bid: ${{ current_price }}</p>
+            {% endif %}
+            <p>Bids made: {{ bid_count }}</p>
 
             {% if error %}
             <div class="alert alert-warning" role="alert">
@@ -50,6 +53,10 @@
             {% endif %}
 
             {% if user.is_authenticated %}
+
+            {% if current_user_bid %}
+            <p class="font-weight-bold">Your bid is the current bid</p>
+            {% endif %}
 
             <form action="{% url 'listing' listing.id %}" method="POST">
                 {% csrf_token %}
