@@ -77,15 +77,15 @@
         {% else %}
 
         <div class="col-sm">
-            {% if last_bid.user_id == request.user %}
+            {% if last_bid.user == request.user %}
             <h1>You have won this auction!</h1>
             <br>
-            <p>Your winning bid was: {{ last_bid.current_bid }}</p>
+            <p>Your winning bid was: {{ last_bid.bid }}</p>
 
             {% else %}
 
             <h1>This auction is closed</h1>
-            <p>The winning bid was: {{ last_bid.current_bid }}</p>
+            <p>The winning bid was: {{ last_bid.bid }}</p>
             {% endif %}
         </div>
 
