@@ -57,12 +57,15 @@ def category(request, category_id):
     )
 
     # get price for listings
-    for listing in c_listings:
-        last_bid = Bid.objects.filter(listing=listing).order_by('-timestamp').first()
-        if last_bid:
-            price = last_bid.bid
-        else:
-            price = listing.start_bid
+    if c_listings:
+        for listing in c_listings:
+            last_bid = Bid.objects.filter(listing=listing).order_by('-timestamp').first()
+            if last_bid:
+                price = last_bid.bid
+            else:
+                price = listing.start_bid
+    else:
+        price = None
 
     return render(request, "auctions/category.html", {
         "c_listings": c_listings,
